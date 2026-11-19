@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Accounting Basic Assumptions · Interactive Quiz</title>
+<style>
+:root{
+  --bg:#f4f5f7; --card:#ffffff; --ink:#1a1d24; --sub:#6b7280;
+  --line:#e6e8ec; --accent:#0f6b5c; --accent2:#0a4f44; --gold:#b45309;
+  --ok:#0f6b5c; --bad:#b91c1c; --soft:#eef4f2; --goldsoft:#fff7ed;
+  --radius:14px; --shadow:0 1px 3px rgba(16,24,40,.06),0 1px 2px rgba(16,24,40,.04);
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0}
+body{
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Helvetica Neue",Arial,sans-serif;
+  background:var(--bg); color:var(--ink); font-size:16px; line-height:1.65;
+  -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:760px;margin:0 auto;padding:0 12px 96px}
+header{
+  position:sticky;top:0;z-index:50;background:var(--card);
+  border-bottom:1px solid var(--line); padding:14px 14px 0;
+}
+header h1{font-size:18px;margin:0 0 2px;letter-spacing:.3px}
+header .sub{font-size:12.5px;color:var(--sub);margin:0 0 12px}
+.stepper{display:flex;gap:6px;padding-bottom:12px;overflow-x:auto}
+.step{flex:1 0 auto;display:flex;align-items:center;gap:7px;border:1px solid var(--line);
+  background:#fff;color:var(--sub);padding:8px 12px;border-radius:999px;font-size:13px;
+  cursor:pointer;white-space:nowrap;font-weight:500}
+.step .dot{width:20px;height:20px;border-radius:50%;background:var(--line);color:#fff;
+  display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0}
+.step.on{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:600}
+.step.on .dot{background:#fff;color:var(--accent)}
+.step.done .dot{background:var(--accent);color:#fff}
+.view{display:none;padding-top:14px}
+.view.on{display:block}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
+  box-shadow:var(--shadow);padding:16px 16px;margin-bottom:12px}
+.card h3{margin:0 0 6px;font-size:16.5px}
+.muted{color:var(--sub)} .small{font-size:13px}
+.lbl{font-size:12px;font-weight:700;color:var(--accent2);letter-spacing:.4px;text-transform:uppercase;margin:0 0 3px}
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:6px;
+  border:1px solid var(--line);background:#fff;color:var(--ink);border-radius:10px;
+  padding:10px 16px;font-size:15px;cursor:pointer;font-weight:500;
+}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:600}
+.btn.block{width:100%}
+.btn:active{opacity:.82}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+/* Review cards */
+.rev{border:1px solid var(--line);border-radius:var(--radius);background:#fff;margin-bottom:12px;overflow:hidden}
+.rev-head{display:flex;align-items:center;gap:10px;padding:13px 16px;border-bottom:1px solid var(--line);background:#fff}
+.rev-head .no{width:28px;height:28px;border-radius:8px;background:var(--soft);color:var(--accent2);
+  display:flex;align-items:center;justify-content:center;font-weight:800;font-size:14px;flex-shrink:0}
+.rev-head .t{font-weight:700;font-size:15.5px}
+.rev-head .cn{font-size:12px;color:var(--sub);font-weight:400}
+.rev-body{padding:13px 16px}
+.rev-body p{margin:0 0 8px;font-size:14.5px}
+.rev-body .idea{background:var(--soft);border-left:3px solid var(--accent);border-radius:6px;
+  padding:8px 12px;font-size:13.5px;margin:8px 0}
+.rev-body .ex{font-size:13px;color:var(--sub);margin-top:8px;padding-top:8px;border-top:1px dashed var(--line)}
+.rev-body .ex b{color:var(--ink)}
+.rev.gold{border-color:#ecd9c0}
+.rev.gold .rev-head{background:var(--goldsoft)}
+.rev.gold .no{background:#fde8cd;color:var(--gold)}
+.rev.gold .idea{border-color:var(--gold);background:var(--goldsoft)}
+/* Quiz */
+.qnum{font-size:12.5px;color:var(--sub);margin-bottom:6px}
+.qtext{font-size:17px;font-weight:600;margin-bottom:16px;line-height:1.5}
+.opts{display:flex;flex-direction:column;gap:9px}
+.opt{display:flex;align-items:flex-start;gap:10px;border:1.5px solid var(--line);border-radius:12px;
+  padding:12px 14px;cursor:pointer;background:#fff;transition:.12s}
+.opt .letter{width:24px;height:24px;border-radius:50%;border:1.5px solid var(--line);color:var(--sub);
+  display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;flex-shrink:0;margin-top:1px}
+.opt .txt{font-size:15px}
+.opt.sel{border-color:var(--accent);background:var(--soft)}
+.opt.sel .letter{background:var(--accent);border-color:var(--accent);color:#fff}
+.progress{height:6px;background:var(--line);border-radius:99px;overflow:hidden;margin:12px 0}
+.progress i{display:block;height:100%;background:var(--accent);border-radius:99px;transition:.3s}
+/* Check */
+.chk{border:1px solid var(--line);border-radius:var(--radius);background:#fff;margin-bottom:12px;overflow:hidden}
+.chk-head{padding:12px 16px;border-bottom:1px solid var(--line);font-size:14.5px}
+.chk-head b{color:var(--accent)}
+.chk-body{padding:13px 16px;font-size:14px}
+.you-ans{margin:6px 0;padding:8px 12px;border-radius:8px;font-size:14px}
+.you-ans.right{background:#e9f5f1;color:var(--ok)}
+.you-ans.wrong{background:#fdeeee;color:var(--bad)}
+.you-ans .tag{font-size:11.5px;font-weight:700;text-transform:uppercase;letter-spacing:.4px}
+.correct-ans{font-size:13.5px;margin-top:6px}
+.correct-ans b{color:var(--ok)}
+.explain{font-size:13px;color:var(--sub);margin-top:9px;padding-top:9px;border-top:1px dashed var(--line)}
+/* Result */
+.bigscore{font-size:46px;font-weight:800;color:var(--accent);margin:4px 0;line-height:1}
+.scorebar{height:10px;background:var(--line);border-radius:99px;overflow:hidden;margin:12px 0}
+.scorebar i{display:block;height:100%;background:var(--accent);border-radius:99px;transition:.4s}
+.msg{font-size:15px;margin:8px 0 14px}
+.pill{display:inline-block;padding:2px 9px;border-radius:6px;font-size:12px;font-weight:700}
+.pill.ok{background:var(--soft);color:var(--accent2)}
+.pill.bad{background:#fdeeee;color:var(--bad)}
+.wrong-list{margin:10px 0 0;padding-left:0;list-style:none}
+.wrong-list li{padding:9px 0;border-bottom:1px solid var(--line);font-size:13.5px}
+.wrong-list li:last-child{border-bottom:none}
+.wrong-list .no{color:var(--accent);font-weight:700;margin-right:6px;font-size:12px}
+@media(min-width:600px){.wrap{padding-left:16px;padding-right:16px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <h1>Accounting Basic Assumptions</h1>
+  <p class="sub">Business Entity · Going Concern · Accounting Period &amp; Accrual Basis · Monetary Unit</p>
+  <div class="stepper" id="stepper">
+    <button class="step on" data-s="review"><span class="dot">1</span>Review</button>
+    <button class="step" data-s="quiz"><span class="dot">2</span>Quiz</button>
+    <button class="step" data-s="check"><span class="dot">3</span>Check</button>
+    <button class="step" data-s="result"><span class="dot">4</span>Score</button>
+  </div>
+</header>
+
+<!-- 1. Review -->
+<section class="view on" id="view-review">
+  <div class="card">
+    <h3>What are accounting assumptions?</h3>
+    <p class="small muted" style="margin:0">Before we record any numbers, accounting rests on a few basic rules about <b style="color:var(--ink)">what</b> we record and <b style="color:var(--ink)">when</b>. Read the four assumptions below, then take the quiz.</p>
+  </div>
+  <div id="review-cards"></div>
+  <button class="btn primary block" onclick="go('quiz')">Start the Quiz →</button>
+</section>
+
+<!-- 2. Quiz -->
+<section class="view" id="view-quiz">
+  <div class="card" id="quiz-intro">
+    <h3>Ready to test yourself?</h3>
+    <p class="small muted" style="margin:0 0 14px">10 multiple-choice questions on the four assumptions. Pick the best answer for each, then check your results.</p>
+    <button class="btn primary block" onclick="startQuiz()">Begin Assessment</button>
+  </div>
+  <div id="quiz-body" style="display:none">
+    <div class="card">
+      <div class="progress"><i id="quiz-bar" style="width:0%"></i></div>
+      <div class="qnum" id="quiz-qnum"></div>
+      <div class="qtext" id="quiz-qtext"></div>
+      <div class="opts" id="quiz-opts"></div>
+    </div>
+    <div class="row" style="justify-content:space-between">
+      <button class="btn" id="quiz-prev" onclick="prevQ()">← Back</button>
+      <button class="btn primary" id="quiz-next" onclick="nextQ()">Next →</button>
+    </div>
+  </div>
+</section>
+
+<!-- 3. Check -->
+<section class="view" id="view-check">
+  <div class="card">
+    <h3>Check your answers</h3>
+    <p class="small muted" style="margin:0">Green = correct, red = missed. Read the short explanation for each one you got wrong.</p>
+  </div>
+  <div id="check-body"></div>
+  <button class="btn primary block" onclick="go('result')">See My Score →</button>
+</section>
+
+<!-- 4. Result -->
+<section class="view" id="view-result">
+  <div id="result-body"></div>
+</section>
+</div>
+
+<script>
+// ---------------- Data ----------------
+const REVIEW = [
+  {
+    t:"Business Entity", cn:"会计主体", gold:false,
+    def:"The business is treated as a separate \u201cperson\u201d from its owner(s). We record only what the business does \u2014 never the owner\u2019s personal shopping, saving, or spending.",
+    idea:"The company\u2019s money and the owner\u2019s money live in two different pockets.",
+    ex:"The owner puts <b>$10,000</b> of personal cash into the company \u2192 recorded as the business receiving <b>capital</b>. The owner buys a family dinner with a personal card \u2192 not recorded in the business books at all."
+  },
+  {
+    t:"Going Concern", cn:"持续经营", gold:false,
+    def:"We assume the business will keep running for the foreseeable future \u2014 it will not stop, or be forced to sell everything off (liquidate), anytime soon.",
+    idea:"Because the business continues, we can spread the cost of long-lived items over many years (depreciation) instead of writing them off all at once.",
+    ex:"A <b>$30,000</b> delivery van is recorded at cost and depreciated over <b>5 years</b> \u2014 we assume the company will still be using it next year and beyond."
+  },
+  {
+    t:"Accounting Period", cn:"会计分期", gold:false,
+    def:"The endless life of a business is sliced into equal blocks of time \u2014 months, quarters, and years \u2014 so we can measure profit and report to users on a regular schedule.",
+    idea:"Without periods we could never say \u201cthis year\u2019s profit\u201d \u2014 we would have to wait until the business closed forever.",
+    ex:"A company closes its books every <b>December 31</b> and reports one full year of results \u2014 that year is its accounting period."
+  },
+  {
+    t:"Accrual Basis", cn:"权责发生制", gold:true,
+    def:"Revenue is recorded when it is <b>EARNED</b>, and expenses when they are <b>INCURRED</b> \u2014 no matter when the cash actually changes hands.",
+    idea:"This is the rule that makes each period\u2019s profit meaningful: it matches the effort (cost) to the reward (revenue) in the same period.",
+    ex:"You finish a <b>$5,000</b> job in December; the customer pays in January. The $5,000 is <b>December\u2019s</b> revenue \u2014 because the work was done (earned) in December."
+  },
+  {
+    t:"Monetary Unit", cn:"货币计量", gold:false,
+    def:"Only things that can be expressed in money are recorded. We also treat money as a stable unit of measure over time.",
+    idea:"Valuable things that cannot be priced reliably \u2014 great staff, loyal customers, high morale \u2014 stay off the books.",
+    ex:"A company\u2019s <b>reputation</b> may be worth a lot, but because we cannot put a reliable dollar figure on it, it is <b>not</b> recorded as an asset."
+  }
+];
+
+const QUESTIONS = [
+  {
+    q:"Which assumption says the business must be kept separate from its owner\u2019s personal affairs?",
+    opts:["Going concern","Business entity","Monetary unit","Accounting period"],
+    ans:1,
+    ex:"The <b>business entity</b> concept treats the business as a separate \u201cperson\u201d. The owner\u2019s personal transactions are never mixed into the business books."
+  },
+  {
+    q:"Under the going-concern assumption, a company records its long-term assets at:",
+    opts:["The price they could be sold for today (liquidation value)","Their original cost, depreciated over their useful life","Zero, because the future is uncertain","Their replacement cost every year"],
+    ans:1,
+    ex:"Going concern means we assume the business will continue, so assets are kept at <b>cost and depreciated over time</b> \u2014 not written down to a fire-sale price."
+  },
+  {
+    q:"\u201cRevenue is recorded when it is earned, not when cash is received.\u201d This describes:",
+    opts:["The business entity concept","The monetary unit assumption","The accrual basis of accounting","The going-concern assumption"],
+    ans:2,
+    ex:"This is the <b>accrual basis</b>: revenue is recognized when earned and expenses when incurred, regardless of when cash moves."
+  },
+  {
+    q:"Which assumption divides the life of a business into equal reporting periods (months, quarters, years)?",
+    opts:["Accounting period","Business entity","Going concern","Monetary unit"],
+    ans:0,
+    ex:"The <b>accounting period</b> (periodicity) assumption slices the business\u2019s life into regular blocks so we can report profit periodically."
+  },
+  {
+    q:"The monetary unit assumption means accounting records only:",
+    opts:["Things that can be measured in money","Physical items such as machines and buildings","Transactions with the government","Cash transactions only"],
+    ans:0,
+    ex:"Monetary unit means only items expressible in <b>money</b> are recorded. Non-cash but monetary items (like sales on credit) are still recorded \u2014 so \u201ccash only\u201d is wrong."
+  },
+  {
+    q:"A company pays $12,000 on January 1 for a one-year insurance policy. Under the accrual basis, how much insurance expense is recorded in January?",
+    opts:["$12,000","$1,000","$0","$6,000"],
+    ans:1,
+    ex:"$12,000 \u00f7 12 months = <b>$1,000</b> per month. Under accrual, only the cost <b>incurred</b> in January ($1,000) is expensed that month; the rest is a prepaid asset."
+  },
+  {
+    q:"Which of the following would normally NOT appear in the accounts because of the monetary unit assumption?",
+    opts:["Inventory in the warehouse","A patent bought from another company","The skill and loyalty of the staff","Cash in the bank"],
+    ans:2,
+    ex:"Staff skill and loyalty cannot be measured reliably in money, so they stay <b>off the books</b>. Inventory, patents, and cash all have a money value."
+  },
+  {
+    q:"The going-concern assumption is important because it justifies:",
+    opts:["Recording revenue only when cash is received","Spreading the cost of a machine over several years (depreciation)","Ignoring all non-cash transactions","Reporting results every single day"],
+    ans:1,
+    ex:"Because the business is expected to continue, we can <b>depreciate</b> a machine over its useful life rather than expensing the whole cost at once."
+  },
+  {
+    q:"The owner takes $500 from the business bank account to pay a personal bill. Under the business entity concept, this should be recorded as:",
+    opts:["A business expense","A withdrawal by the owner (drawings)","Nothing, because it is the owner\u2019s own money","A reduction in revenue"],
+    ans:1,
+    ex:"It is not a business expense \u2014 it is a <b>withdrawal (drawings)</b> by the owner, because the owner and the business are two separate entities."
+  },
+  {
+    q:"A company performs a service in December but receives the cash in January. Under the accrual basis, when is the revenue recorded?",
+    opts:["January, when the cash is received","Half in December and half in January","December, when the service is performed (earned)","Whenever the invoice is sent"],
+    ans:2,
+    ex:"Revenue is recorded when <b>earned</b> \u2014 the service was performed in December, so it is December\u2019s revenue, even though the cash arrives in January."
+  }
+];
+
+const LETTERS = ["A","B","C","D"];
+const $ = s => document.querySelector(s);
+
+// ---------------- State ----------------
+let cur = 0;               // current question index (0-based)
+let answers = [];          // answers[i] = selected option index, or -1
+
+// ---------------- Stepper / navigation ----------------
+function go(s){
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('on'));
+  document.getElementById('view-'+s).classList.add('on');
+  document.querySelectorAll('.step').forEach(b=>b.classList.toggle('on', b.dataset.s===s));
+  if(s==='check') renderCheck();
+  if(s==='result') renderResult();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+document.getElementById('stepper').addEventListener('click', e=>{
+  const b = e.target.closest('.step'); if(!b) return;
+  if(b.dataset.s==='check' && answers.some(a=>a<0)){ alert('Please answer all questions first.'); return; }
+  go(b.dataset.s);
+});
+
+// ---------------- Review ----------------
+function renderReview(){
+  document.getElementById('review-cards').innerHTML = REVIEW.map((r,i)=>`
+    <div class="rev ${r.gold?'gold':''}">
+      <div class="rev-head">
+        <span class="no">${i+1}</span>
+        <span class="t">${r.t} <span class="cn">(${r.cn})</span></span>
+      </div>
+      <div class="rev-body">
+        <p>${r.def}</p>
+        <div class="idea">${r.idea}</div>
+        <div class="ex">${r.ex}</div>
+      </div>
+    </div>`).join('');
+}
+
+// ---------------- Quiz ----------------
+function startQuiz(){
+  answers = QUESTIONS.map(()=> -1);
+  cur = 0;
+  document.getElementById('quiz-intro').style.display = 'none';
+  document.getElementById('quiz-body').style.display = 'block';
+  renderQ();
+}
+function renderQ(){
+  const q = QUESTIONS[cur];
+  document.getElementById('quiz-qnum').textContent = `Question ${cur+1} of ${QUESTIONS.length}`;
+  document.getElementById('quiz-qtext').textContent = q.q;
+  document.getElementById('quiz-opts').innerHTML = q.opts.map((o,i)=>`
+    <div class="opt ${answers[cur]===i?'sel':''}" data-i="${i}" onclick="pick(${i})">
+      <span class="letter">${LETTERS[i]}</span>
+      <span class="txt">${o}</span>
+    </div>`).join('');
+  document.getElementById('quiz-bar').style.width = (cur/QUESTIONS.length*100)+'%';
+  document.getElementById('quiz-prev').disabled = (cur===0);
+  const last = (cur===QUESTIONS.length-1);
+  document.getElementById('quiz-next').textContent = last ? 'Check Answers ✓' : 'Next →';
+}
+function pick(i){
+  answers[cur] = i;
+  document.querySelectorAll('#quiz-opts .opt').forEach((o,idx)=>{
+    o.classList.toggle('sel', idx===i);
+  });
+}
+function nextQ(){
+  if(answers[cur]<0){ alert('Please choose an answer.'); return; }
+  if(cur < QUESTIONS.length-1){ cur++; renderQ(); }
+  else { go('check'); }
+}
+function prevQ(){ if(cur>0){ cur--; renderQ(); } }
+
+// ---------------- Check ----------------
+function renderCheck(){
+  const total = QUESTIONS.length;
+  const right = QUESTIONS.reduce((n,q,i)=> n + (answers[i]===q.ans?1:0), 0);
+  document.getElementById('check-body').innerHTML =
+    `<div class="card">
+      <div class="row" style="justify-content:space-between">
+        <span class="small muted">You answered <b style="color:var(--ok)">${right}</b> of <b>${total}</b> correctly</span>
+        <span class="pill ${right===total?'ok':'bad'}">${right} / ${total}</span>
+      </div>
+    </div>` +
+    QUESTIONS.map((q,i)=>{
+      const ok = answers[i]===q.ans;
+      return `<div class="chk">
+        <div class="chk-head"><b>Q${i+1}.</b> ${q.q}</div>
+        <div class="chk-body">
+          <div class="you-ans ${ok?'right':'wrong'}">
+            <span class="tag">${ok?'✓ Your answer':'✗ Your answer'}</span> — ${LETTERS[answers[i]]}. ${q.opts[answers[i]]}
+          </div>
+          ${ok?'':'<div class="correct-ans"><b>Correct:</b> ${LETTERS[q.ans]}. ${q.opts[q.ans]}</div>'}
+          <div class="explain">${q.ex}</div>
+        </div>
+      </div>`;
+    }).join('');
+}
+
+// ---------------- Result ----------------
+function renderResult(){
+  const total = QUESTIONS.length;
+  const right = QUESTIONS.reduce((n,q,i)=> n + (answers[i]===q.ans?1:0), 0);
+  const pct = Math.round(right/total*100);
+  let msg;
+  if(pct>=90) msg = "Excellent! You have mastered the four accounting assumptions.";
+  else if(pct>=70) msg = "Good job! Take a quick look at the ones you missed below.";
+  else if(pct>=50) msg = "Not bad \u2014 but go back through the Review cards and try again.";
+  else msg = "Keep practicing. Re-read the Review cards first, then retake the quiz.";
+  const wrong = QUESTIONS.map((q,i)=>({q,i})).filter(o=> answers[o.i]!==o.q.ans);
+  document.getElementById('result-body').innerHTML = `
+    <div class="card" style="text-align:center">
+      <h3>Your Score</h3>
+      <div class="bigscore">${pct}%</div>
+      <div class="scorebar"><i style="width:${pct}%"></i></div>
+      <div class="msg">${msg}</div>
+      <div class="small muted">${right} correct out of ${total} questions</div>
+      ${wrong.length? `
+        <div style="text-align:left;margin-top:14px">
+          <div class="lbl">Review these</div>
+          <ul class="wrong-list">${wrong.map(o=>`
+            <li><span class="no">Q${o.i+1}</span>${o.q.q}</li>`).join('')}
+          </ul>
+        </div>` : `
+        <div style="margin-top:12px;font-size:32px">🎉</div>
+        <div class="muted small">Perfect score \u2014 nothing to review!</div>`}
+      <div class="row" style="justify-content:center;margin-top:16px">
+        <button class="btn primary" onclick="startQuiz()">Retake Quiz</button>
+        <button class="btn" onclick="go('review')">Back to Review</button>
+      </div>
+    </div>`;
+}
+
+// ---------------- Init ----------------
+renderReview();
+</script>
+</body>
+</html>
